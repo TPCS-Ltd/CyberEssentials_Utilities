@@ -1,1 +1,1 @@
-get-ADComputer -searchbase "[full OU path]" -filter {enabled  -eq $true} -properties name,objectclass,lastlogondate,operatingsystem,operatingsystemversion | select name,operatingsystem,operatingsystemversion,lastlogondate | format-table >  C:\CE-Audit
+get-ADComputer -searchbase "[full OU path]" -filter {enabled  -eq $true} -properties name,objectclass,lastlogondate,operatingsystem,operatingsystemversion | select name,operatingsystem,operatingsystemversion,lastlogondate | format-table >  C:\CE-Audit\ComputerDetails.csv

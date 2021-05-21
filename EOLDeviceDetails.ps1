@@ -6,7 +6,7 @@ $credentials = Get-Credential
         -Authentication Basic -AllowRedirection
     Import-PSSession $session
  
-$csv = "C:\CE-Audit\ComputerDetails.csv"
+$csv = "C:\CE-Audit\EOLDevices.csv"
 $results = @()
 $mailboxUsers = get-mailbox -resultsize unlimited
 $mobileDevice = @()
@@ -16,7 +16,7 @@ foreach($user in $mailboxUsers)
 $UPN = $user.UserPrincipalName
 $displayName = $user.DisplayName
  
-$mobileDevices = Get-MobileDevice -Mailbox $UPN
+$mobileDevices = Get-MobileDeviceStatistics -Mailbox $UPN
        
       foreach($mobileDevice in $mobileDevices)
       {
@@ -25,7 +25,6 @@ $mobileDevices = Get-MobileDevice -Mailbox $UPN
           Name = $user.name
           UPN = $UPN
           DisplayName = $displayName
-          FriendlyName = $mobileDevice.FriendlyName
           ClientType = $mobileDevice.ClientType
           ClientVersion = $mobileDevice.ClientVersion
           DeviceId = $mobileDevice.DeviceId
@@ -34,13 +33,13 @@ $mobileDevices = Get-MobileDevice -Mailbox $UPN
           DeviceOS = $mobileDevice.DeviceOS
           DeviceTelephoneNumber = $mobileDevice.DeviceTelephoneNumber
           DeviceType = $mobileDevice.DeviceType
-          FirstSyncTime = $mobileDevice.FirstSyncTime
+          LastSuccessSync = $mobileDevice.LastSuccessSync
           UserDisplayName = $mobileDevice.UserDisplayName
           }
           $results += New-Object psobject -Property $properties
       }
 }
  
-$results | Select-Object Name,UPN,FriendlyName,DisplayName,ClientType,ClientVersion,DeviceId,DeviceMobileOperator,DeviceModel,DeviceOS,DeviceTelephoneNumber,DeviceType,FirstSyncTime,UserDisplayName | Export-Csv -notypeinformation -Path $csv
- 
-Remove-PSSession $session
+$results | Select-Object Name,UPN,DisplayName,ClientType,ClientVersion,DeviceId,DeviceMobileOperator,DeviceModel,DeviceOS,DeviceTelephoneNumber,DeviceType,LastSuccessSync,UserDisplayName | Export-Csv -notypeinformation -Path $csv
+ pause
+#Remove-PSSession $session

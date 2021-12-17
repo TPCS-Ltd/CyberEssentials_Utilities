@@ -1,12 +1,29 @@
 $credentials = Get-Credential
-    Write-Output "Getting the Exchange Online cmdlets"
+Function Get-Folder($initialDirectory="")
+{
+
+    [System.Reflection.Assembly]::LoadWithPartialName("System.windows.forms")|Out-Null
+
+    $foldername = New-Object System.Windows.Forms.FolderBrowserDialog
+    $foldername.Description = "Select a folder to export to... "
+    $foldername.rootfolder = "MyComputer"
+    $foldername.SelectedPath = $initialDirectory
+
+    if($foldername.ShowDialog() -eq "OK")
+    {
+        $folder += $foldername.SelectedPath
+    }
+    return $folder
+}    
+$csvRoot = Get-Folder
+	Write-Output "Getting the Exchange Online cmdlets"
  
     $session = New-PSSession -ConnectionUri https://outlook.office365.com/powershell-liveid/ `
         -ConfigurationName Microsoft.Exchange -Credential $credentials `
         -Authentication Basic -AllowRedirection
     Import-PSSession $session
  
-$csv = "C:\CE-Audit\EOLDevices.csv"
+#$csv = "C:\CE-Audit\EOLDevices.csv"
 $results = @()
 $mailboxUsers = get-mailbox -resultsize unlimited
 $mobileDevice = @()
@@ -39,7 +56,10 @@ $mobileDevices = Get-MobileDeviceStatistics -Mailbox $UPN
           $results += New-Object psobject -Property $properties
       }
 }
+
+$csvFile = "\EOLDevices.csv"
+$csvPath = $csvRoot+$csvFile
  
-$results | Select-Object Name,UPN,DisplayName,ClientType,ClientVersion,DeviceId,DeviceMobileOperator,DeviceModel,DeviceOS,DeviceTelephoneNumber,DeviceType,LastSuccessSync,UserDisplayName | Export-Csv -notypeinformation -Path $csv
+$results | Select-Object Name,UPN,DisplayName,ClientType,ClientVersion,DeviceId,DeviceMobileOperator,DeviceModel,DeviceOS,DeviceTelephoneNumber,DeviceType,LastSuccessSync,UserDisplayName | Export-Csv -notypeinformation -Path $csvPath
  pause
 #Remove-PSSession $session
